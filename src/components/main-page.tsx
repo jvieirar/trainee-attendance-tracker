@@ -7,7 +7,7 @@ import TraineeManagement from "@/components/trainee-management";
 import AttendanceTracking from "@/components/attendance-tracking";
 import Analytics from "@/components/analytics";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function MainPage() {
   const [activeTab, setActiveTab] = useState("trainees");
 
   return (

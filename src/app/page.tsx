@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import Layout from "@/components/layout";
+import MainPage from "@/components/main-page";
 
 export default function Home() {
   const { userId } = auth();
@@ -8,5 +8,5 @@ export default function Home() {
     return <div>Please sign in to access the application.</div>;
   }
 
-  return <Layout>Welcome to the Trainee Attendance Tracker</Layout>;
+  return <MainPage />;
 }
