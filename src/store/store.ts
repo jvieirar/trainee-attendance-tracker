@@ -18,7 +18,12 @@ type Store = {
   trainees: Trainee[];
   attendances: Attendance[];
   addTrainee: (name: string, packages: number) => void;
-  editTrainee: (id: number, name: string) => void;
+  editTrainee: (
+    id: number,
+    name: string,
+    packagesRemaining: number,
+    sessionsRemaining: number
+  ) => void;
   addPackage: (traineeId: number) => void;
   removePackage: (traineeId: number) => void;
   addAttendance: (traineeId: number, date: string) => void;
@@ -44,10 +49,12 @@ export const useStore = create<Store>()(
             },
           ],
         })),
-      editTrainee: (id, name) =>
+      editTrainee: (id, name, packagesRemaining, sessionsRemaining) =>
         set((state) => ({
           trainees: state.trainees.map((trainee) =>
-            trainee.id === id ? { ...trainee, name } : trainee
+            trainee.id === id
+              ? { ...trainee, name, packagesRemaining, sessionsRemaining }
+              : trainee
           ),
         })),
       addPackage: (traineeId) =>

@@ -28,8 +28,11 @@ export default function TraineeManagement() {
   const [editingTrainee, setEditingTrainee] = useState<{
     id: number;
     name: string;
+    packagesRemaining: number;
+    sessionsRemaining: number;
   } | null>(null);
   const [filter, setFilter] = useState("all");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleAddTrainee = () => {
     addTrainee(newTrainee.name, newTrainee.packages);
@@ -38,8 +41,14 @@ export default function TraineeManagement() {
 
   const handleEditTrainee = () => {
     if (editingTrainee) {
-      editTrainee(editingTrainee.id, editingTrainee.name);
+      editTrainee(
+        editingTrainee.id,
+        editingTrainee.name,
+        editingTrainee.packagesRemaining,
+        editingTrainee.sessionsRemaining
+      );
       setEditingTrainee(null);
+      setIsEditDialogOpen(false);
     }
   };
 
@@ -128,9 +137,19 @@ export default function TraineeManagement() {
                   <Button size="sm" onClick={() => removePackage(trainee.id)}>
                     <Minus className="w-4 h-4" />
                   </Button>
-                  <Dialog>
+                  <Dialog
+                    open={isEditDialogOpen}
+                    onOpenChange={setIsEditDialogOpen}
+                  >
                     <DialogTrigger asChild>
-                      <Button size="sm" variant="outline">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingTrainee({ ...trainee });
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
                         <Pencil className="w-4 h-4" />
                       </Button>
                     </DialogTrigger>
@@ -138,21 +157,45 @@ export default function TraineeManagement() {
                       <DialogHeader>
                         <DialogTitle>Edit Trainee</DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-4">
-                        <Input
-                          placeholder="Trainee Name"
-                          value={editingTrainee?.name || trainee.name}
-                          onChange={(e) =>
-                            setEditingTrainee({
-                              id: trainee.id,
-                              name: e.target.value,
-                            })
-                          }
-                        />
-                        <Button onClick={handleEditTrainee}>
-                          Save Changes
-                        </Button>
-                      </div>
+                      {editingTrainee && (
+                        <div className="space-y-4">
+                          <Input
+                            placeholder="Trainee Name"
+                            value={editingTrainee.name}
+                            onChange={(e) =>
+                              setEditingTrainee({
+                                ...editingTrainee,
+                                name: e.target.value,
+                              })
+                            }
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Packages Remaining"
+                            value={editingTrainee.packagesRemaining}
+                            onChange={(e) =>
+                              setEditingTrainee({
+                                ...editingTrainee,
+                                packagesRemaining: parseInt(e.target.value),
+                              })
+                            }
+                          />
+                          <Input
+                            type="number"
+                            placeholder="Sessions Remaining"
+                            value={editingTrainee.sessionsRemaining}
+                            onChange={(e) =>
+                              setEditingTrainee({
+                                ...editingTrainee,
+                                sessionsRemaining: parseInt(e.target.value),
+                              })
+                            }
+                          />
+                          <Button onClick={handleEditTrainee}>
+                            Save Changes
+                          </Button>
+                        </div>
+                      )}
                     </DialogContent>
                   </Dialog>
                 </div>
