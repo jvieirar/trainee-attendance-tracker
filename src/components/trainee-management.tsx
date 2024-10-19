@@ -19,15 +19,28 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useStore } from "@/store/store";
+import { Pencil, Plus, Minus } from "lucide-react";
 
 export default function TraineeManagement() {
-  const { trainees, addTrainee, addPackage } = useStore();
+  const { trainees, addTrainee, editTrainee, addPackage, removePackage } =
+    useStore();
   const [newTrainee, setNewTrainee] = useState({ name: "", packages: 1 });
+  const [editingTrainee, setEditingTrainee] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
   const [filter, setFilter] = useState("all");
 
   const handleAddTrainee = () => {
     addTrainee(newTrainee.name, newTrainee.packages);
     setNewTrainee({ name: "", packages: 1 });
+  };
+
+  const handleEditTrainee = () => {
+    if (editingTrainee) {
+      editTrainee(editingTrainee.id, editingTrainee.name);
+      setEditingTrainee(null);
+    }
   };
 
   const filteredTrainees = trainees.filter((trainee) => {
@@ -108,9 +121,41 @@ export default function TraineeManagement() {
               <TableCell>{trainee.packagesRemaining}</TableCell>
               <TableCell>{trainee.sessionsRemaining}</TableCell>
               <TableCell>
-                <Button onClick={() => addPackage(trainee.id)}>
-                  Add Package
-                </Button>
+                <div className="flex space-x-2">
+                  <Button size="sm" onClick={() => addPackage(trainee.id)}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                  <Button size="sm" onClick={() => removePackage(trainee.id)}>
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm" variant="outline">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Trainee</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Trainee Name"
+                          value={editingTrainee?.name || trainee.name}
+                          onChange={(e) =>
+                            setEditingTrainee({
+                              id: trainee.id,
+                              name: e.target.value,
+                            })
+                          }
+                        />
+                        <Button onClick={handleEditTrainee}>
+                          Save Changes
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </TableCell>
             </TableRow>
           ))}

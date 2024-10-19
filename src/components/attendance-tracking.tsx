@@ -26,13 +26,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useStore } from "@/store/store";
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function AttendanceTracking() {
-  const { trainees, attendances, addAttendance, getTraineeById } = useStore();
+  const {
+    trainees,
+    attendances,
+    addAttendance,
+    editAttendance,
+    deleteAttendance,
+    getTraineeById,
+  } = useStore();
   const [newAttendance, setNewAttendance] = useState({
     traineeId: "",
     date: new Date().toISOString().split("T")[0],
   });
+  const [editingAttendance, setEditingAttendance] = useState<{
+    id: number;
+    traineeId: string;
+    date: string;
+  } | null>(null);
   const [filterDate, setFilterDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -43,6 +56,17 @@ export default function AttendanceTracking() {
       traineeId: "",
       date: new Date().toISOString().split("T")[0],
     });
+  };
+
+  const handleEditAttendance = () => {
+    if (editingAttendance) {
+      editAttendance(
+        editingAttendance.id,
+        parseInt(editingAttendance.traineeId),
+        editingAttendance.date
+      );
+      setEditingAttendance(null);
+    }
   };
 
   const filteredAttendances = attendances.filter((a) => a.date === filterDate);
@@ -83,6 +107,7 @@ export default function AttendanceTracking() {
                 onChange={(e) =>
                   setNewAttendance({ ...newAttendance, date: e.target.value })
                 }
+                className="text-base" // Increased text size for better mobile usability
               />
               <Button onClick={handleAddAttendance}>Add Attendance</Button>
             </div>
@@ -94,6 +119,7 @@ export default function AttendanceTracking() {
           type="date"
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
+          className="text-base" // Increased text size for better mobile usability
         />
       </div>
       <Table>
@@ -103,6 +129,7 @@ export default function AttendanceTracking() {
             <TableHead>Date</TableHead>
             <TableHead>Sessions Used</TableHead>
             <TableHead>Sessions Remaining</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -116,6 +143,71 @@ export default function AttendanceTracking() {
                 </TableCell>
                 <TableCell>1</TableCell>
                 <TableCell>{trainee?.sessionsRemaining}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline">
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Attendance</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <Select
+                            value={
+                              editingAttendance?.traineeId ||
+                              attendance.traineeId.toString()
+                            }
+                            onValueChange={(value) =>
+                              setEditingAttendance({
+                                ...editingAttendance!,
+                                traineeId: value,
+                              })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Trainee" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {trainees.map((trainee) => (
+                                <SelectItem
+                                  key={trainee.id}
+                                  value={trainee.id.toString()}
+                                >
+                                  {trainee.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            type="date"
+                            value={editingAttendance?.date || attendance.date}
+                            onChange={(e) =>
+                              setEditingAttendance({
+                                ...editingAttendance!,
+                                date: e.target.value,
+                              })
+                            }
+                            className="text-base" // Increased text size for better mobile usability
+                          />
+                          <Button onClick={handleEditAttendance}>
+                            Save Changes
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteAttendance(attendance.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             );
           })}
